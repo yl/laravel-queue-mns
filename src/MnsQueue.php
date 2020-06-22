@@ -30,12 +30,11 @@ class MnsQueue extends Queue implements QueueContract
 
     public function push($job, $data = '', $queue = null)
     {
-        $queues = $this->mns->listQueue(new ListQueueRequest())->getQueueNames();
-        if (!in_array($queue, $queues)) {
-            $this->mns->createQueue(new CreateQueueRequest($queue));
+        $queue = $this->getQueue($queue);
+        if (!$this->queueExists($queue)) {
+            $this->createQueue($queue);
         }
-
-        return $this->pushRaw($this->createPayload($job, $queue ?: $this->default, $data), $queue);
+        return $this->pushRaw($this->createPayload($job, $queue, $data), $queue);
     }
 
     public function pushRaw($payload, $queue = null, array $options = [])
@@ -54,8 +53,12 @@ class MnsQueue extends Queue implements QueueContract
 
     public function pop($queue = null)
     {
+        $queue = $this->getQueue($queue);
+        if (!$this->queueExists($queue)) {
+            $this->createQueue($queue);
+        }
         try {
-            $response = $this->mns->getQueueRef($this->getQueue($queue))->receiveMessage();
+            $response = $this->mns->getQueueRef($queue)->receiveMessage();
             return new MnsJob($this->container, $this->mns, $queue, $response, $this->connectionName);
         } catch (MessageNotExistException $exception) {
             return null;
@@ -65,5 +68,16 @@ class MnsQueue extends Queue implements QueueContract
     public function getQueue($queue)
     {
         return $queue ?: $this->default;
+    }
+
+    public function queueExists($queue)
+    {
+        $queues = $this->mns->listQueue(new ListQueueRequest())->getQueueNames();
+        return in_array($queue, $queues);
+    }
+
+    public function createQueue($queue)
+    {
+        $this->mns->createQueue(new CreateQueueRequest($queue));
     }
 }
