@@ -1,0 +1,25 @@
+{
+    "name": "yl/laravel-queue-mns",
+    "description": "",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "yangliu",
+            "email": "yangliulnn@163.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Yl\\LaravelQueueMns\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Yl\\LaravelQueueMns\\ServiceProvider"
+            ]
+        }
+    }
+}
