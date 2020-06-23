@@ -1,6 +1,6 @@
 <?php
 
-namespace Yl\LaravelQueueMns;
+namespace LaravelQueueMns;
 
 use AliyunMNS\Client;
 use AliyunMNS\Responses\ReceiveMessageResponse;

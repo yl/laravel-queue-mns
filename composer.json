@@ -12,13 +12,13 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Yl\\LaravelQueueMns\\": "src"
+            "LaravelQueueMns\\": "src"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Yl\\LaravelQueueMns\\ServiceProvider"
+                "LaravelQueueMns\\ServiceProvider"
             ]
         }
     }

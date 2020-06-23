@@ -1,6 +1,6 @@
 <?php
 
-namespace Yl\LaravelQueueMns;
+namespace LaravelQueueMns;
 
 use AliyunMNS\Client;
 use AliyunMNS\Exception\MessageNotExistException;
@@ -10,22 +10,26 @@ use AliyunMNS\Requests\SendMessageRequest;
 use Exception;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Queue\Queue;
+use Illuminate\Support\Arr;
 
 class MnsQueue extends Queue implements QueueContract
 {
     protected $mns;
 
+    protected $config;
+
     protected $default;
 
-    public function __construct(Client $mns, $default)
+    public function __construct(Client $mns, $config)
     {
         $this->mns = $mns;
-        $this->default = $default;
+        $this->config = $config;
+        $this->default = Arr::get($this->config, 'queue');
     }
 
     public function size($queue = null)
     {
-        throw new Exception('The size method is not support for aliyun-mns');
+        throw new Exception('The size method is not support for aliyun mns.');
     }
 
     public function push($job, $data = '', $queue = null)
@@ -57,12 +61,22 @@ class MnsQueue extends Queue implements QueueContract
         if (!$this->queueExists($queue)) {
             $this->createQueue($queue);
         }
+
         try {
             $response = $this->mns->getQueueRef($queue)->receiveMessage();
-            return new MnsJob($this->container, $this->mns, $queue, $response, $this->connectionName);
         } catch (MessageNotExistException $exception) {
             return null;
         }
+
+        if (Arr::exists(json_decode($response->getMessageBody(), true), 'uuid')) {
+            return new MnsJob($this->container, $this->mns, $queue, $response, $this->connectionName);
+        }
+
+        $customMessageHandle = Arr::get($this->config, 'custom_message_handle', null);
+        if ($customMessageHandle !== null && method_exists($customMessageHandle, 'handle')) {
+            (new $customMessageHandle($response))->handle();
+        }
+        return null;
     }
 
     public function getQueue($queue)

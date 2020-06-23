@@ -1,6 +1,6 @@
 <?php
 
-namespace Yl\LaravelQueueMns;
+namespace LaravelQueueMns;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
