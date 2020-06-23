@@ -75,6 +75,7 @@ class MnsQueue extends Queue implements QueueContract
         $customMessageHandle = Arr::get($this->config, 'custom_message_handle', null);
         if ($customMessageHandle !== null && method_exists($customMessageHandle, 'handle')) {
             (new $customMessageHandle($response))->handle();
+            $this->mns->getQueueRef($queue)->deleteMessage($response->getReceiptHandle());
         }
         return null;
     }
