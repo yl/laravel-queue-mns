@@ -9,7 +9,9 @@
             "email": "yangliulnn@163.com"
         }
     ],
-    "require": {},
+    "require": {
+        "aliyun/aliyun-mns-php-sdk": "^1.1"
+    },
     "autoload": {
         "psr-4": {
             "LaravelQueueMns\\": "src"
