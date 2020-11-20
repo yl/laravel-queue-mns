@@ -68,7 +68,9 @@ class MnsQueue extends Queue implements QueueContract
             return null;
         }
 
-        if (Arr::exists(json_decode($response->getMessageBody(), true), 'uuid')) {
+        $message = json_decode($response->getMessageBody(), true);
+
+        if (is_array($message) && Arr::exists($message, 'uuid')) {
             return new MnsJob($this->container, $this->mns, $queue, $response, $this->connectionName);
         }
 
